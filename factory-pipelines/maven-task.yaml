@@ -68,6 +68,7 @@ spec:
 
       cat > $(workspaces.maven-settings.path)/settings.xml <<EOF
       <settings>
+        <localRepository>$(workspaces.source.path)/.m2/repository</localRepository>
         <servers>
           <!-- The servers added here are generated from environment variables. Don't change. -->
           <!-- ### SERVER's USER INFO from ENV ### -->

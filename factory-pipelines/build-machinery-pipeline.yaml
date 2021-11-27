@@ -24,15 +24,43 @@ spec:
       name: logger
   - name: git-clone
     params:
-    - name: url
+    - name: repo
       value: $(params.repourl)
+    - name: branch
+      value: main
     runAfter:
     - log-start
     taskRef:
-      kind: ClusterTask
+      kind: Task
       name: git-clone
     workspaces:
-    - name: output
+    - name: source
+      workspace: source
+  - name: extract-maven-project-settings
+    runAfter:
+    - git-clone
+    taskRef:
+      kind: Task
+      name: extract-maven-project-settings
+    params:
+    - name: MAVEN_IMAGE
+      value: quay.io/tim_speetjens/mvn-quarkus-native-image:0.0.2
+    - name: CONTEXT_DIR
+      value: machinery-service
+    workspaces:
+    - name: source
+      workspace: source
+  - name: git-rev-list-count
+    params:
+    - name: CONTEXT_DIR
+      value: machinery-service
+    runAfter:
+    - git-clone
+    taskRef:
+      kind: Task
+      name: git-rev-list-count
+    workspaces:
+    - name: source
       workspace: source
   - name: maven-clean-package
     params:
@@ -44,8 +72,10 @@ spec:
       - -Dquarkus.native.container-build=false
     - name: MAVEN_IMAGE
       value: quay.io/tim_speetjens/mvn-quarkus-native-image:0.0.2
+    - name: CONTEXT_DIR
+      value: machinery-service
     runAfter:
-    - git-clone
+    - extract-maven-project-settings
     taskRef:
       kind: Task
       name: maven
@@ -54,5 +84,16 @@ spec:
       workspace: source
     - name: maven-settings
       workspace: source
+  - name: echo
+    params:
+    - name: text
+      value: "Container image:tag is $(tasks.extract-maven-project-settings.results.projectArtifactId):$(tasks.extract-maven-project-settings.results.projectVersion)-$(tasks.git-rev-list-count.results.git-rev-list-count)"
+    runAfter:
+    - git-rev-list-count
+    - extract-maven-project-settings
+    taskRef:
+      kind: Task
+      name: logger
   workspaces:
   - name: source
+  

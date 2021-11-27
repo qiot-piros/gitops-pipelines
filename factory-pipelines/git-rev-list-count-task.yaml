@@ -1,0 +1,30 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: git-rev-list-count
+  namespace: factory-pipelines
+spec:
+  params:
+  - default: registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:da1aedf0b17f2b9dd2a46edc93ff1c0582989414b902a28cd79bad8a035c9ea4
+    description: The image providing the git-init binary that this Task runs.
+    name: gitInitImage
+    type: string
+  - default: .
+    description: The context directory within the repository for sources on which
+      we want to execute maven goals.
+    name: CONTEXT_DIR
+    type: string
+  workspaces:
+    - name: source
+  results:
+  - description: number of commits in current branch
+    name: git-rev-list-count
+  steps:
+  - name: git-rev-list-count
+    image: $(params.gitInitImage)
+    script: |
+      #!/usr/bin/env bash
+      set -e
+      echo -n $(git rev-list --count HEAD) > $(results.git-rev-list-count.path)
+    workingDir: $(workspaces.source.path)/$(params.CONTEXT_DIR)
