@@ -13,10 +13,14 @@ spec:
     template: 
       ref: push
     interceptors: 
-    - github: 
-        secretRef: 
-          secretName: webhook
-          secretKey: secretToken 
-        eventTypes: 
-        - push 
-
+    - ref:	
+        kind: ClusterInterceptor	
+        name: github
+      params:	
+      - name: secretRef	
+        value:	
+          secretKey: secretToken	
+          secretName: webhook	
+      - name: eventTypes	
+        value:	
+        - push	
