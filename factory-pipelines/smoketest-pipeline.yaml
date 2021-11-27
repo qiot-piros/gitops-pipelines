@@ -1,0 +1,22 @@
+---
+apiVersion: tekton.dev/v1beta1 
+kind: Pipeline 
+metadata: 
+  name: smoketest
+spec: 
+  params: 
+    - name: reponame
+      type: string 
+    - name: repourl
+      type: string
+    - name: revision
+      type: string
+    - name: gitref
+      type: string
+  tasks: 
+    - name: log-push
+      taskRef: 
+        name: logger 
+      params: 
+        - name: text 
+          value: "Push event received for $(params.reponame): $(params.repourl) - commitid $(params.revision) - ref $(params.gitref)"
