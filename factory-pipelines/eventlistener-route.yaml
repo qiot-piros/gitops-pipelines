@@ -1,0 +1,16 @@
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  annotations:
+    openshift.io/host.generated: "true"
+  name: el-listener
+  namespace: factory-pipelines
+spec:
+  port:
+    targetPort: http-listener
+  to:
+    kind: Service
+    name: el-listener
+    weight: 100
+  wildcardPolicy: None
