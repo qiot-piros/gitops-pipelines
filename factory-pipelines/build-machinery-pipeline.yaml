@@ -107,6 +107,23 @@ spec:
       workspace: source
     - name: dockerconfig
       workspace: dockerconfig
+  - name: update-version-configmap
+    taskRef:
+      kind: Task
+      name: create-configmap
+    params:
+    - name: configmap
+      value: machinery-version
+    - name: entry
+      value: version
+    - name: value
+      value: $(tasks.extract-maven-project-settings.results.projectVersion)-$(tasks.git-rev-list-count.results.git-rev-list-count)
+    runAfter:
+    - build-push-image
+  - name: start-machinery-deployment
+    taskRef:
+      kind: Task
+      name: start-machinery-deployment
   workspaces:
   - name: source
   - name: dockerconfig

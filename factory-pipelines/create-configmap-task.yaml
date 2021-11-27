@@ -1,0 +1,18 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: create-configmap
+spec:
+  params:
+  - name: configmap
+  - name: entry
+  - name: value
+  steps:
+    - name: create-configmap
+      image: registry.redhat.io/openshift4/ose-tools-rhel8:v4.8
+      script:
+        #!/usr/bin/env bash
+        oc create configmap $(params.configmap) \
+        --from-literal=$(params.entry)=$(params.value) \
+        --dry-run=client -o yaml | oc apply -f -

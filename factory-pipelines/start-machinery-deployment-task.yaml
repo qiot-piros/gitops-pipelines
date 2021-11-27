@@ -1,0 +1,44 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: start-machinery-deployment
+spec:
+  steps:
+    - name: create-new-pipelinerun
+      image: registry.redhat.io/openshift4/ose-tools-rhel8:v4.8
+      script: |
+        #!/usr/bin/env bash
+        oc create -f - <<EOF
+        apiVersion: tekton.dev/v1beta1
+        kind: PipelineRun
+        metadata:
+          generateName: machinery-deployment-
+          namespace: factory-pipelines
+        spec:
+          params:
+            - name: repourl
+              value: 'https://github.com/qiot-piros/machinery-automation.git'
+          pipelineRef:
+            name: machinery-deployment
+          serviceAccountName: pipeline
+          timeout: 1h0m0s
+          workspaces:
+            - name: source
+              volumeClaimTemplate:
+                metadata:
+                  creationTimestamp: null
+                spec:
+                  accessModes:
+                    - ReadWriteOnce
+                  resources:
+                    requests:
+                      storage: 1Gi
+                  storageClassName: managed-nfs-storage
+            - name: ssh_identity
+              secret:
+                secretName: ansible
+            - configMap:
+                name: machinery-version
+              name: machinery_version
+        EOF
