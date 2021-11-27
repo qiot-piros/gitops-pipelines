@@ -2,7 +2,7 @@
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
-  name: smoketest
+  name: build-machinery
 spec:
   params:
     - name: reponame
@@ -18,5 +18,5 @@ spec:
       taskRef:
         name: logger
       params:
-        - name: text 
-          value: "Push event received for smoketest $(params.reponame): $(params.repourl) - commitid $(params.revision) - ref $(params.gitref)"
+        - name: text
+          value: "Push event received to build machinery service $(params.reponame): $(params.repourl) - commitid $(params.revision) - ref $(params.gitref)"

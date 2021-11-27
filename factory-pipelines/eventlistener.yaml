@@ -5,15 +5,11 @@ metadata:
   name: listener
 spec:
   serviceAccountName: pipeline
-  triggers: 
-  - name: trigger 
-    bindings: 
-    - kind: TriggerBinding
-      ref: event-binding
-    template: 
-      ref: push
-    interceptors: 
-    - ref:	
+  triggers:
+  - name: factory-machinery-service-main-push
+    interceptors:
+    - name: github filter secret and push event
+      ref:	
         kind: ClusterInterceptor	
         name: github
       params:	
@@ -24,3 +20,43 @@ spec:
       - name: eventTypes	
         value:	
         - push	
+    - name: register branch_name, filter on main / reponame
+      ref:
+        kind: ClusterInterceptor	
+        name: cel
+      params:
+      - name: overlays
+        value:
+        - key: truncated_sha
+          expression: "body.pull_request.head.sha.truncate(7)"
+        - key: branch_name
+          expression: "body.ref.split('/')[2]"
+      - name: filter
+        value: >-
+          body.repository.full_name == 'qiot-piros/machinery-service' &&
+          extensions.branch_name == 'main'
+    bindings:
+    - kind: TriggerBinding
+      ref: event-binding
+    template:
+      ref: push-machinery
+  - name: smoketest
+    interceptors:
+    - name: github filter secret and push event
+      ref:
+        kind: ClusterInterceptor
+        name: github
+      params:
+      - name: secretRef
+        value:
+          secretKey: secretToken
+          secretName: webhook
+      - name: eventTypes
+        value:
+        - push
+    bindings:
+    - kind: TriggerBinding
+      ref: event-binding
+    template:
+      ref: push-smoketest
+

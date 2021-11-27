@@ -1,0 +1,28 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: push-machinery
+spec:
+  params:
+    - name: git-repo-url
+    - name: git-repo-name
+    - name: git-revision
+    - name: git-ref
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: build-machinery-push-
+      spec:
+        pipelineRef:
+          name: build-machinery
+        params:
+          - name: repourl
+            value: $(tt.params.git-repo-url)
+          - name: reponame
+            value: $(tt.params.git-repo-name)
+          - name: revision
+            value: $(tt.params.git-revision)
+          - name: gitref
+            value: $(tt.params.git-ref)

@@ -2,27 +2,27 @@
 apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
-  name: push
-spec: 
-  params: 
-    - name: git-repo-url 
+  name: push-smoketest
+spec:
+  params:
+    - name: git-repo-url
     - name: git-repo-name
     - name: git-revision
     - name: git-ref
-  resourcetemplates: 
-    - apiVersion: tekton.dev/v1beta1 
-      kind: PipelineRun 
-      metadata: 
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
         generateName: smoketest-push-
-      spec: 
-        pipelineRef: 
+      spec:
+        pipelineRef:
           name: smoketest
-        params: 
+        params:
           - name: repourl
-            value: $(tt.params.git-repo-url) 
+            value: $(tt.params.git-repo-url)
           - name: reponame
-            value: $(tt.params.git-repo-name) 
+            value: $(tt.params.git-repo-name)
           - name: revision
             value: $(tt.params.git-revision)
           - name: gitref
-            value: $(tt.params.git-ref) 
+            value: $(tt.params.git-ref)
