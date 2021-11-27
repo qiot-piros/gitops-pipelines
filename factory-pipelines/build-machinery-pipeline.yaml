@@ -1,4 +1,3 @@
----
 apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
@@ -27,29 +26,33 @@ spec:
     params:
     - name: url
       value: $(params.repourl)
+    runAfter:
+    - log-start
     taskRef:
       kind: ClusterTask
       name: git-clone
     workspaces:
     - name: output
       workspace: source
-    runAfter:  
-      - log-start
   - name: maven-clean-package
     params:
     - name: GOALS
       value:
       - clean
       - package
+      - -Pnative
+      - -Dquarkus.native.container-build=false
+    - name: MAVEN_IMAGE
+      value: quay.io/tim_speetjens/mvn-quarkus-native-image:0.0.2
+    runAfter:
+    - git-clone
     taskRef:
-      kind: ClusterTask
+      kind: Task
       name: maven
     workspaces:
     - name: source
       workspace: source
     - name: maven-settings
       workspace: source
-    runAfter:  
-      - git-clone
   workspaces:
   - name: source
