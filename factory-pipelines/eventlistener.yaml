@@ -11,26 +11,31 @@ spec:
   - name: factory-machinery-service-main-push
     interceptors:
     - name: github filter secret and push event
-      ref:	
-        kind: ClusterInterceptor	
-        name: github
-      params:	
-      - name: secretRef	
-        value:	
-          secretKey: secretToken	
-          secretName: webhook	
-      - name: eventTypes	
-        value:	
-        - push	
-    - name: register branch_name, filter on main / reponame
       ref:
-        kind: ClusterInterceptor	
+        kind: ClusterInterceptor
+        name: github
+      params:
+      - name: secretRef
+        value:
+          secretKey: secretToken
+          secretName: webhook
+      - name: eventTypes
+        value:
+        - push
+    - name: register branch_name
+      ref:
+        kind: ClusterInterceptor
         name: cel
       params:
       - name: overlays
         value:
         - key: branch_name
           expression: "body.ref.split('/')[2]"
+    - name: filter on repository name and branch
+      ref:
+        kind: ClusterInterceptor
+        name: cel
+      params:
       - name: filter
         value: >-
           body.repository.full_name == 'qiot-piros/machinery-service' &&
