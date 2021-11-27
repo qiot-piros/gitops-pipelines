@@ -8,7 +8,8 @@ spec:
   triggers: 
   - name: trigger 
     bindings: 
-    - ref: event-binding
+    - kind: TriggerBinding
+      ref: event-binding
     template: 
       ref: push
     interceptors: 
