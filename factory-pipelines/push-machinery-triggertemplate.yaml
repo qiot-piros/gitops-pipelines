@@ -3,26 +3,37 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: TriggerTemplate
 metadata:
   name: push-machinery
+  namespace: factory-pipelines
 spec:
   params:
-    - name: git-repo-url
-    - name: git-repo-name
-    - name: git-revision
-    - name: git-ref
+  - name: git-repo-url
+  - name: git-repo-name
+  - name: git-revision
+  - name: git-ref
   resourcetemplates:
-    - apiVersion: tekton.dev/v1beta1
-      kind: PipelineRun
-      metadata:
-        generateName: build-machinery-push-
-      spec:
-        pipelineRef:
-          name: build-machinery
-        params:
-          - name: repourl
-            value: $(tt.params.git-repo-url)
-          - name: reponame
-            value: $(tt.params.git-repo-name)
-          - name: revision
-            value: $(tt.params.git-revision)
-          - name: gitref
-            value: $(tt.params.git-ref)
+  - apiVersion: tekton.dev/v1beta1
+    kind: PipelineRun
+    metadata:
+      generateName: build-machinery-push-
+    spec:
+      params:
+      - name: repourl
+        value: $(tt.params.git-repo-url)
+      - name: reponame
+        value: $(tt.params.git-repo-name)
+      - name: revision
+        value: $(tt.params.git-revision)
+      - name: gitref
+        value: $(tt.params.git-ref)
+      pipelineRef:
+        name: build-machinery
+      workspaces:
+      - name: source
+        volumeClaimTemplate:
+          spec:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
+            storageClassName: managed-nfs-storage

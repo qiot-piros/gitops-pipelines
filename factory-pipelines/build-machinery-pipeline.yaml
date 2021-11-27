@@ -3,20 +3,53 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: build-machinery
+  namespace: factory-pipelines
 spec:
   params:
-    - name: reponame
-      type: string
-    - name: repourl
-      type: string
-    - name: revision
-      type: string
-    - name: gitref
-      type: string
+  - name: reponame
+    type: string
+  - name: repourl
+    type: string
+  - name: revision
+    type: string
+  - name: gitref
+    type: string
   tasks:
-    - name: log-push
-      taskRef:
-        name: logger
-      params:
-        - name: text
-          value: "Push event received to build machinery service $(params.reponame): $(params.repourl) - commitid $(params.revision) - ref $(params.gitref)"
+  - name: log-start
+    params:
+    - name: text
+      value: 'Push event received to build machinery service $(params.reponame): $(params.repourl)
+        - commitid $(params.revision) - ref $(params.gitref)'
+    taskRef:
+      kind: Task
+      name: logger
+  - name: git-clone
+    params:
+    - name: url
+      value: $(params.repourl)
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: source
+    runAfter:  
+      - log-start
+  - name: maven-clean-package
+    params:
+    - name: GOALS
+      value:
+      - clean
+      - package
+    taskRef:
+      kind: ClusterTask
+      name: maven
+    workspaces:
+    - name: source
+      workspace: source
+    - name: maven-settings
+      workspace: source
+    runAfter:  
+      - git-clone
+  workspaces:
+  - name: source
