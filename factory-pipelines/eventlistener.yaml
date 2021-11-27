@@ -3,6 +3,8 @@ apiVersion: triggers.tekton.dev/v1alpha1
 kind: EventListener
 metadata:
   name: listener
+  annotations:
+    argocd.argoproj.io/sync-options: Replace=true
 spec:
   serviceAccountName: pipeline
   triggers:
