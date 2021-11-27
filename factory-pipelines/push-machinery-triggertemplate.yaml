@@ -37,3 +37,6 @@ spec:
               requests:
                 storage: 1Gi
             storageClassName: managed-nfs-storage
+      - name: dockerconfig
+        secret:
+          secretName: quay-io-docker-config-json

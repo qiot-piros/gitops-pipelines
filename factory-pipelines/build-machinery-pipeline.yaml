@@ -75,6 +75,7 @@ spec:
     - name: CONTEXT_DIR
       value: machinery-service
     runAfter:
+    - git-rev-list-count
     - extract-maven-project-settings
     taskRef:
       kind: Task
@@ -84,16 +85,28 @@ spec:
       workspace: source
     - name: maven-settings
       workspace: source
-  - name: echo
+  - name: build-push-image
     params:
-    - name: text
-      value: "Container image:tag is $(tasks.extract-maven-project-settings.results.projectArtifactId):$(tasks.extract-maven-project-settings.results.projectVersion)-$(tasks.git-rev-list-count.results.git-rev-list-count)"
+    - name: IMAGE
+      value: quay.io/tim_speetjens/$(tasks.extract-maven-project-settings.results.projectArtifactId):$(tasks.extract-maven-project-settings.results.projectVersion)-$(tasks.git-rev-list-count.results.git-rev-list-count)
+    - name: CONTEXT
+      value: machinery-service
+    - name: DOCKERFILE
+      value: ./src/main/docker/Dockerfile.native
+    - name: EXTRA_ARGS
+      value:
+      - --verbosity
+      - debug
     runAfter:
-    - git-rev-list-count
-    - extract-maven-project-settings
+    - maven-clean-package
     taskRef:
       kind: Task
-      name: logger
+      name: kaniko
+    workspaces:
+    - name: source
+      workspace: source
+    - name: dockerconfig
+      workspace: dockerconfig
   workspaces:
   - name: source
-  
+  - name: dockerconfig
