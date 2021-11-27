@@ -1,0 +1,47 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: ansible-runner
+spec:
+  params:
+  - name: extra_vars
+  - name: playbook
+  - name: identity_file
+    default: id_rsa
+  - name: becomePassSecretName
+  - name: playbook
+  - name: CONTEXT_DIR
+    default: ansible
+  workspaces:
+  - name: source
+    mountPath: /runner
+  - name: ssh_identity
+    mountPath: /identity
+  steps:
+    - name: ansible-runner
+      image: quay.io/ansible/ansible-runner:stable-2.9-devel
+      env:
+      - name: ANSIBLE_HOST_KEY_CHECKING
+        value: "False"
+      - name: ANSIBLE_BECOME_PASS
+        valueFrom:
+          secretKeyRef:
+            name: $(params.becomePassSecretName)
+            key: password
+      securityContext:
+        runAsUser: 0
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT_DIR)
+      script: |
+        #/usr/bin/env bash
+        set -e
+
+        mkdir -p $HOME/.ssh
+        chmod 700 $HOME/.ssh
+        cp $(workspaces.ssh_identity.path)/$(params.identity_file) $HOME/.ssh
+        chmod 600 $HOME/.ssh/$(params.identity_file)
+
+        ansible-playbook -i inventory/ \
+          --private-key=$HOME/.ssh/$(params.identity_file) \
+          $(params.playbook) $(params.extra_vars)
+        

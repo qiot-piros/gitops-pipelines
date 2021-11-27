@@ -1,0 +1,67 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: machinery-deployment
+  namespace: factory-pipelines
+spec:
+  params:
+  - name: repourl
+    type: string
+  tasks:
+  - name: log-start
+    params:
+    - name: text
+      value: 'Starting deployment'
+    taskRef:
+      kind: Task
+      name: logger
+  - name: git-clone
+    params:
+    - name: repo
+      value: $(params.repourl)
+    - name: branch
+      value: main
+    runAfter:
+    - log-start
+    taskRef:
+      kind: Task
+      name: git-clone
+    workspaces:
+    - name: source
+      workspace: source
+  - name: read-machinery-version
+    taskRef:
+      kind: Task
+      name: read-configmap-entry
+    params:
+    - name: configmap
+      value: machinery-version
+    - name: entry
+      value: version
+    runAfter:
+    - git-clone
+  - name: ansible-runner
+    params:
+    - name: extra_vars
+      value: "--extra-vars container_image=quay.io/tim_speetjens/machinery-service --extra-vars container_image_version=$(tasks.read-machinery-version.results.data)"
+    - name: playbook
+      value: playbooks/configure-fitlet.yaml
+    - name: becomePassSecretName
+      value: ansible
+    - name: CONTEXT_DIR
+      value: machinery-automation/ansible
+    runAfter:
+    - git-clone
+    - read-machinery-version
+    taskRef:
+      kind: Task
+      name: ansible-runner
+    workspaces:
+    - name: source
+      workspace: source
+    - name: ssh_identity
+      workspace: ssh_identity
+  workspaces:
+  - name: source
+  - name: ssh_identity
+  - name: machinery_version

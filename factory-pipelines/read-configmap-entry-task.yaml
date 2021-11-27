@@ -1,0 +1,17 @@
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: read-configmap-entry
+spec:
+  params:
+  - name: configmap
+  - name: entry
+  results:
+  - name: data
+  steps:
+    - name: read-entry
+      image: registry.redhat.io/openshift4/ose-tools-rhel8:v4.8
+      script:
+        #!/usr/bin/env bash
+        oc extract cm/$(params.configmap) --keys=$(entry) --to=- > $(results.data.path)
