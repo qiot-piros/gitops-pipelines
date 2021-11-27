@@ -38,23 +38,23 @@ spec:
       ref: event-binding
     template:
       ref: push-machinery
-  - name: smoketest
-    interceptors:
-    - name: github filter secret and push event
-      ref:
-        kind: ClusterInterceptor
-        name: github
-      params:
-      - name: secretRef
-        value:
-          secretKey: secretToken
-          secretName: webhook
-      - name: eventTypes
-        value:
-        - push
-    bindings:
-    - kind: TriggerBinding
-      ref: event-binding
-    template:
-      ref: push-smoketest
+#  - name: smoketest
+#    interceptors:
+#    - name: github filter secret and push event
+#      ref:
+#        kind: ClusterInterceptor
+#        name: github
+#      params:
+#      - name: secretRef
+#        value:
+#          secretKey: secretToken
+#          secretName: webhook
+#      - name: eventTypes
+#        value:
+#        - push
+#    bindings:
+#    - kind: TriggerBinding
+#      ref: event-binding
+#    template:
+#      ref: push-smoketest
 
