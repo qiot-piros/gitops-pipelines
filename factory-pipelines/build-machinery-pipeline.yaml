@@ -88,7 +88,7 @@ spec:
   - name: build-push-image
     params:
     - name: IMAGE
-      value: quay.io/tim_speetjens/$(tasks.extract-maven-project-settings.results.projectArtifactId):$(tasks.extract-maven-project-settings.results.projectVersion)-$(tasks.get-version-tag.results.get-version-tag)
+      value: quay.io/tim_speetjens/$(tasks.extract-maven-project-settings.results.projectArtifactId):$(tasks.extract-maven-project-settings.results.projectVersion)-$(tasks.get-version-tag.results.version-tag)
     - name: CONTEXT
       value: machinery-service
     - name: DOCKERFILE
