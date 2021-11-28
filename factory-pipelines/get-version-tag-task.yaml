@@ -27,5 +27,5 @@ spec:
       #!/usr/bin/env bash
       set -e
 
-      echo -n "$(git rev-list --count HEAD)-$(git rev-parse --short HEAD)" > $(results.git-version-tag.path)
+      echo -n "$(git rev-list --count HEAD)-$(git rev-parse --short HEAD)" > $(results.version-tag.path)
     workingDir: $(workspaces.source.path)/$(params.CONTEXT_DIR)
