@@ -11,7 +11,7 @@ spec:
   steps:
     - name: create-configmap
       image: registry.redhat.io/openshift4/ose-tools-rhel8:v4.8
-      script:
+      script: |
         #!/usr/bin/env bash
         oc create configmap $(params.configmap) \
         --from-literal=$(params.entry)=$(params.value) \
