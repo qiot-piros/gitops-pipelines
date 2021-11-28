@@ -124,6 +124,8 @@ spec:
     taskRef:
       kind: Task
       name: start-machinery-deployment
+    runAfter:
+    - update-version-configmap
   workspaces:
   - name: source
   - name: dockerconfig
